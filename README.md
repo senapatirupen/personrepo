@@ -3,7 +3,9 @@ personrepo
 
 repository for sample projects
 https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3
+
 https://github.com/Apress/spring-rest-2e
+
 https://github.com/PacktPublishing/Software-Architecture-with-Spring-6.0
 https://github.com/PacktPublishing/Mastering-RESTful-Web-Services-with-Java
 https://github.com/PacktPublishing/Java-Coding-Problems
