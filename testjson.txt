@@ -1,0 +1,240 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MappingUtilTest {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Test
+    public void testMapClientObjectToRequest() throws Exception {
+        // Step 1: Input JSON string
+        String inputJsonString = "{\"clientName\":\"John\"}";
+
+        // Step 2: Expected JSON string
+        String expectedJsonString = "{\"name\":\"John\"}";
+
+        // Step 3: Deserialize JSON into ClientObject
+        ClientObject clientObject = objectMapper.readValue(inputJsonString, ClientObject.class);
+
+        // Step 4: Map ClientObject to ExampleRequest
+        ExampleRequest request = MappingUtil.mapClientObjectToRequest(clientObject);
+
+        // Step 5: Serialize ExampleRequest object to JSON
+        String actualJsonString = objectMapper.writeValueAsString(request);
+
+        // Step 6: Compare JSON strings
+        assertEquals(expectedJsonString, actualJsonString);
+    }
+}
+
+Using the Gson library is a great way to handle large JSON strings efficiently. Gson provides a lightweight and easy-to-use API for serialization and deserialization.
+Here's an example that demonstrates handling a large JSON string for both input and expected JSON:
+
+Example Code with Gson
+Dependencies
+Add Gson to your pom.xml if you're using Maven:
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.10.1</version>
+</dependency>
+
+DTOs
+public class ClientObject {
+    private String clientName;
+    private int clientAge;
+
+    // Getters and Setters
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public int getClientAge() {
+        return clientAge;
+    }
+
+    public void setClientAge(int clientAge) {
+        this.clientAge = clientAge;
+    }
+}
+
+public class ExampleRequest {
+    private String name;
+    private int age;
+
+    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+
+Mapping Utility
+public class MappingUtil {
+
+    public static ExampleRequest mapClientObjectToRequest(ClientObject clientObject) {
+        ExampleRequest request = new ExampleRequest();
+        request.setName(clientObject.getClientName());
+        request.setAge(clientObject.getClientAge());
+        return request;
+    }
+}
+
+Test Class
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MappingUtilTest {
+
+    private final Gson gson = new Gson();
+
+    @Test
+    public void testLargeJsonMappingWithGson() {
+        // Step 1: Define a large input JSON string
+        String inputJsonString = "{ \"clientName\": \"John\", \"clientAge\": 30 }";
+
+        // Step 2: Define the expected JSON string
+        String expectedJsonString = "{ \"name\": \"John\", \"age\": 30 }";
+
+        // Step 3: Deserialize the input JSON into a ClientObject
+        ClientObject clientObject = gson.fromJson(inputJsonString, ClientObject.class);
+
+        // Step 4: Map ClientObject to ExampleRequest
+        ExampleRequest request = MappingUtil.mapClientObjectToRequest(clientObject);
+
+        // Step 5: Serialize the ExampleRequest object back to JSON
+        String actualJsonString = gson.toJson(request);
+
+        // Step 6: Compare the actual JSON string with the expected JSON string
+        assertEquals(expectedJsonString, actualJsonString);
+    }
+}
+
+Explanation of Steps
+	1	Gson Library:
+	◦	gson.fromJson(inputJsonString, ClientObject.class): Converts the JSON string to a ClientObject.
+	◦	gson.toJson(request): Converts the ExampleRequest object to a JSON string.
+	2	Mapping Logic:
+	◦	MappingUtil.mapClientObjectToRequest handles the manual mapping of fields from ClientObject to ExampleRequest.
+	3	Comparison:
+	◦	Compares the actualJsonString (produced from the object) with the expectedJsonString.
+
+Output for This Example
+Input JSON (inputJsonString)
+{ "clientName": "John", "clientAge": 30 }
+Expected JSON (expectedJsonString)
+{ "name": "John", "age": 30 }
+Serialized JSON (actualJsonString)
+{ "name": "John", "age": 30 }
+
+Advantages of Using Gson for Large JSON Strings
+	1	Lightweight:
+	◦	Gson has a smaller memory footprint compared to some other libraries like Jackson.
+	2	Efficient Serialization/Deserialization:
+	◦	Gson handles large JSON strings efficiently without the need for additional configuration.
+	3	Ease of Use:
+	◦	Minimal boilerplate code for conversion between JSON and Java objects.
+This approach ensures your mapping and JSON handling works effectively for large JSON strings while leveraging Gson's simplicity and performance.
+
+To handle parsing exceptions while using Gson, you can catch JsonSyntaxException and JsonIOException, which are the common exceptions Gson throws during deserialization.
+Here's an updated example demonstrating how to handle parsing exceptions:
+
+Updated Test Class with Exception Handling
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MappingUtilTest {
+
+    private final Gson gson = new Gson();
+
+    @Test
+    public void testLargeJsonMappingWithGson() {
+        // Step 1: Define a large input JSON string
+        String inputJsonString = "{ \"clientName\": \"John\", \"clientAge\": 30 }";
+
+        // Step 2: Define the expected JSON string
+        String expectedJsonString = "{ \"name\": \"John\", \"age\": 30 }";
+
+        try {
+            // Step 3: Deserialize the input JSON into a ClientObject
+            ClientObject clientObject = gson.fromJson(inputJsonString, ClientObject.class);
+
+            // Step 4: Map ClientObject to ExampleRequest
+            ExampleRequest request = MappingUtil.mapClientObjectToRequest(clientObject);
+
+            // Step 5: Serialize the ExampleRequest object back to JSON
+            String actualJsonString = gson.toJson(request);
+
+            // Step 6: Compare the actual JSON string with the expected JSON string
+            assertEquals(expectedJsonString, actualJsonString);
+
+        } catch (JsonSyntaxException e) {
+            fail("JSON syntax error while parsing: " + e.getMessage());
+        } catch (JsonIOException e) {
+            fail("I/O error while reading JSON: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidJsonWithGson() {
+        // Invalid JSON string
+        String invalidJsonString = "{ \"clientName\": \"John\", ";
+
+        // Expect JsonSyntaxException on deserialization
+        Exception exception = assertThrows(JsonSyntaxException.class, () -> {
+            gson.fromJson(invalidJsonString, ClientObject.class);
+        });
+
+        assertTrue(exception.getMessage().contains("Expected"));
+    }
+}
+
+Explanation of Changes
+1. Exception Handling
+	•	JsonSyntaxException:
+	◦	Thrown when there is an issue with the structure or syntax of the JSON (e.g., missing brackets, unexpected tokens).
+	•	JsonIOException:
+	◦	Thrown when there is an issue reading the JSON due to I/O errors (e.g., stream issues).
+2. Handling in the Code
+	•	Use try-catch blocks around the deserialization logic to gracefully handle errors.
+	•	Use meaningful messages in fail() to indicate the type of exception and the cause.
+3. Testing Invalid JSON
+	•	The testInvalidJsonWithGson method specifically checks how the code behaves when given an invalid JSON string.
+	•	Uses assertThrows to validate that a JsonSyntaxException is raised for malformed JSON.
+
+Sample Output
+Valid JSON Case
+Input JSON:
+{ "clientName": "J
+Benefits of This Approach
+	1	Graceful Failure:
+	◦	Ensures that parsing errors don’t crash the application or test suite.
+	2	Debugging Assistance:
+	◦	Provides clear error messages for debugging invalid JSON.
+	3	Robust Testing:
+	◦	Validates behavior for both valid and invalid JSON inputs.
+This approach ensures that your Gson-based parsing is robust and provides clear feedback in case of errors.
+
